@@ -16,4 +16,11 @@ namespace Romi.PathTools
         LeftTangent,
         RightTangent
     }
+
+    public enum LoopMode
+    {
+        Stop,
+        Loop,
+        PingPong
+    }
 }
