@@ -1,3 +1,4 @@
+#if PLAYMAKER
 using UnityEngine;
 using Romi.PathTools;
 
@@ -94,4 +95,4 @@ namespace HutongGames.PlayMaker.Actions
 		}
 	}
 }
-
+#endif
