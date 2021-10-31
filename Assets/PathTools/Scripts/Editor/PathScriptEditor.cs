@@ -59,6 +59,7 @@ namespace Romi.PathTools
                 source.AddNode();
 
             source.closeLoop = EditorGUILayout.Toggle("Close Loop", source.closeLoop);
+            source.showUpVector = EditorGUILayout.Toggle("Show Orientation", source.showUpVector);
             EditorGUILayout.LabelField(string.Format("Path Length: {0}", source.PathDistance));
 
             if (EditorGUI.EndChangeCheck())

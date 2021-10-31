@@ -10,6 +10,10 @@ namespace Romi.PathTools
         [SerializeField] float speed = 2f, rotationSpeed = 5f;
         [SerializeField] LoopMode loopMode;
 
+        [Space(20)]
+        [SerializeField] bool useCustomUpVector;
+        [SerializeField] Vector3 customUpVector = Vector3.up;
+
         [Header("Debug")]
         [SerializeField] float distance;
 
@@ -43,7 +47,7 @@ namespace Romi.PathTools
             }
 
             transform.position = path.GetPositionAtDistance(runtimeDistance);
-            Quaternion targetRot = path.GetRotationAtDistance(runtimeDistance, path.GetUpVectorAtDistance(runtimeDistance));
+            Quaternion targetRot = path.GetRotationAtDistance(runtimeDistance, useCustomUpVector ? customUpVector : path.GetUpVectorAtDistance(runtimeDistance));
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
         }
 

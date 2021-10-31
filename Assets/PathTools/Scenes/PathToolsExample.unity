@@ -170,9 +170,10 @@ MonoBehaviour:
     tangentType: 0
   selectedId: 0
   closeLoop: 1
-  lastPos: {x: -0.2224189, y: 0.013729572, z: 2.9288592}
-  lastLeftHandlePos: {x: 2.0906916, y: 0.013729572, z: 3.5246074}
-  lastRightHandlePos: {x: -2.2515397, y: 0.013729572, z: 2.4062533}
+  showUpVector: 0
+  lastPos: {x: 1.4542342, y: 0.013729572, z: 0.3277291}
+  lastLeftHandlePos: {x: 1.237987, y: 0.013729572, z: -0.6486104}
+  lastRightHandlePos: {x: 1.6652508, y: 0.013729572, z: 1.2804526}
 --- !u!4 &800040797
 Transform:
   m_ObjectHideFlags: 0
@@ -305,6 +306,8 @@ MonoBehaviour:
   speed: 2
   rotationSpeed: 5
   loopMode: 0
+  useCustomUpVector: 0
+  customUpVector: {x: 0, y: 1, z: 0}
   distance: 0
 --- !u!23 &1977854513
 MeshRenderer:

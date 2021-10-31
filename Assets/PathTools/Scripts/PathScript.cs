@@ -9,7 +9,7 @@ namespace Romi.PathTools
         #region VARIABLES
         [SerializeField] private List<Node> nodes = new List<Node>();
         [SerializeField] private int selectedId;
-        public bool closeLoop;
+        public bool closeLoop, showUpVector;
 
         private const int CURVE_SEGMENT = 20;
 
@@ -236,13 +236,16 @@ namespace Romi.PathTools
                 Gizmos.DrawLine(LocalToWorld(curvedPositions[i == 0 ? curvedPositions.Count - 1 : i - 1]), LocalToWorld(curvedPositions[i]));
             }
 
-            for (int i = 0; i < orientations.Count; i++)
+            if (showUpVector)
             {
-                //draw point up with orientation influence
-                Vector3 direction = (curvedPositions[i] - curvedPositions[i == 0 ? (curvedPositions.Count - 1) : (i - 1)]).normalized;
-                Vector3 finalDirection = Quaternion.AngleAxis(orientations[i], direction) * Vector3.up;
-                Gizmos.color = Color.red;
-                Gizmos.DrawLine(LocalToWorld(curvedPositions[i]), LocalToWorld(curvedPositions[i]) + (finalDirection * 0.4f));
+                for (int i = 0; i < orientations.Count; i++)
+                {
+                    //draw point up with orientation influence
+                    Vector3 direction = (curvedPositions[i] - curvedPositions[i == 0 ? (curvedPositions.Count - 1) : (i - 1)]).normalized;
+                    Vector3 finalDirection = Quaternion.AngleAxis(orientations[i], direction) * Vector3.up;
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawLine(LocalToWorld(curvedPositions[i]), LocalToWorld(curvedPositions[i]) + (finalDirection * 0.4f));
+                }
             }
         }
 #endif
