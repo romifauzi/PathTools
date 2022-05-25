@@ -16,9 +16,13 @@ namespace Romi.PathTools
 
         [Header("Debug")]
         [SerializeField] float distance;
+        [SerializeField] float pathLength;
 
         private float runtimeDistance;
         private float speedDirection = 1f;
+
+        //only for loop mode stop, to stop update from running
+        private bool arrived;
 
         private void Start()
         {
@@ -28,6 +32,9 @@ namespace Romi.PathTools
         // Update is called once per frame
         void Update()
         {
+            if (arrived)
+                return;
+
             runtimeDistance += speed * speedDirection * Time.deltaTime;
 
             if (loopMode == LoopMode.PingPong)
@@ -39,13 +46,19 @@ namespace Romi.PathTools
             }
             else if (loopMode == LoopMode.Stop)
             {
-                runtimeDistance = Mathf.Clamp(runtimeDistance, 0f, path.PathDistance);
+                var adjustedDistance = path.PathDistance * 0.999f;
+
+                runtimeDistance = Mathf.Clamp(runtimeDistance, 0f, adjustedDistance);
+
+                if (runtimeDistance >= adjustedDistance)
+                    arrived = true;
             }
             else if (loopMode == LoopMode.Loop)
             {
                 runtimeDistance %= path.PathDistance;
             }
 
+            Debug.Log(runtimeDistance);
             transform.position = path.GetPositionAtDistance(runtimeDistance);
             Quaternion targetRot = path.GetRotationAtDistance(runtimeDistance, useCustomUpVector ? customUpVector : path.GetUpVectorAtDistance(runtimeDistance));
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
@@ -60,6 +73,8 @@ namespace Romi.PathTools
             transform.position = path.GetPositionAtDistance(distance);
             Quaternion targetRot = path.GetRotationAtDistance(distance, path.GetUpVectorAtDistance(distance));
             transform.rotation = targetRot;
+
+            pathLength = path.PathDistance;
         }
 #endif
     }

@@ -13,11 +13,14 @@ namespace Romi.PathTools
         float pickSize = 1f;
         float subPickSize = 0.3f;
 
+        SerializedProperty handleSize;
+
         SelectedNode currentSelectedNode;
 
         private void OnEnable()
         {
             source = (PathScript)target;
+            handleSize = serializedObject.FindProperty("handleMulti");
         }
 
         private void OnSceneGUI()
@@ -30,7 +33,7 @@ namespace Romi.PathTools
                 if (i == selectedId)
                     continue;
 
-                if (Handles.Button(nodePos, Quaternion.identity, 0.2f, HandleUtility.GetHandleSize(nodePos) * pickSize, Handles.SphereHandleCap))
+                if (Handles.Button(nodePos, Quaternion.identity, handleSize.floatValue, HandleUtility.GetHandleSize(nodePos) * pickSize, Handles.SphereHandleCap))
                 {
                     source.lastPos = source.Nodes[i].localPos;
                     source.lastLeftHandlePos = source.Nodes[i].leftHandle;
@@ -46,6 +49,8 @@ namespace Romi.PathTools
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
+
             if (source.Nodes.Count == 0)
                 selectedId = -1;
 
@@ -60,12 +65,17 @@ namespace Romi.PathTools
 
             source.closeLoop = EditorGUILayout.Toggle("Close Loop", source.closeLoop);
             source.showUpVector = EditorGUILayout.Toggle("Show Orientation", source.showUpVector);
+
+            EditorGUILayout.PropertyField(handleSize, new GUIContent("Handle Size"));
+
             EditorGUILayout.LabelField(string.Format("Path Length: {0}", source.PathDistance));
 
             if (EditorGUI.EndChangeCheck())
             {
                 EditorUtility.SetDirty(source);
             }
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         void DrawNodeInspector(int id)
@@ -94,18 +104,18 @@ namespace Romi.PathTools
                 case SelectedNode.Main:
                     //show position handle for main node, show button for tangent nodes
                     source.Nodes[id].localPos = WorldToLocal(Handles.PositionHandle(LocalToWorld(source.Nodes[id].localPos), Quaternion.identity));
-                    DrawNodeButton(source.Nodes[id].leftHandle, SelectedNode.LeftTangent, 0.1f, Color.red);
-                    DrawNodeButton(source.Nodes[id].rightHandle, SelectedNode.RightTangent, 0.1f, Color.red);
+                    DrawNodeButton(source.Nodes[id].leftHandle, SelectedNode.LeftTangent, handleSize.floatValue * 0.6f, Color.red);
+                    DrawNodeButton(source.Nodes[id].rightHandle, SelectedNode.RightTangent, handleSize.floatValue * 0.6f, Color.red);
                     break;
                 case SelectedNode.LeftTangent:
                     source.Nodes[id].leftHandle = WorldToLocal(Handles.PositionHandle(LocalToWorld(source.Nodes[id].leftHandle), Quaternion.identity));
-                    DrawNodeButton(source.Nodes[id].localPos, SelectedNode.Main, 0.2f, Color.green);
-                    DrawNodeButton(source.Nodes[id].rightHandle, SelectedNode.RightTangent, 0.1f, Color.red);
+                    DrawNodeButton(source.Nodes[id].localPos, SelectedNode.Main, handleSize.floatValue, Color.green);
+                    DrawNodeButton(source.Nodes[id].rightHandle, SelectedNode.RightTangent, handleSize.floatValue * 0.6f, Color.red);
                     break;
                 case SelectedNode.RightTangent:
                     source.Nodes[id].rightHandle = WorldToLocal(Handles.PositionHandle(LocalToWorld(source.Nodes[id].rightHandle), Quaternion.identity));
-                    DrawNodeButton(source.Nodes[id].localPos, SelectedNode.Main, 0.2f, Color.green);
-                    DrawNodeButton(source.Nodes[id].leftHandle, SelectedNode.LeftTangent, 0.1f, Color.red);
+                    DrawNodeButton(source.Nodes[id].localPos, SelectedNode.Main, handleSize.floatValue, Color.green);
+                    DrawNodeButton(source.Nodes[id].leftHandle, SelectedNode.LeftTangent, handleSize.floatValue * 0.6f, Color.red);
                     break;
             }
 

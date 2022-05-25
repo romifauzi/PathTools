@@ -9,6 +9,7 @@ namespace Romi.PathTools
         #region VARIABLES
         [SerializeField] private List<Node> nodes = new List<Node>();
         [SerializeField] private int selectedId;
+        [SerializeField] private float handleMulti = 0.2f;
         public bool closeLoop, showUpVector;
 
         private const int CURVE_SEGMENT = 20;
@@ -53,11 +54,8 @@ namespace Romi.PathTools
                 Vector3 p1 = (nodes[i].rightHandle);
                 Vector3 p2 = (nodes[i + 1].leftHandle);
                 Vector3 p3 = (nodes[i + 1].localPos);
-                for (int j = 0; j < CURVE_SEGMENT; j++)
-                {
-                    float t = j / (float)CURVE_SEGMENT;
-                    curvedNodes.Add(CalculateBezierPath(p0, p1, p2, p3, t));
-                }
+
+                Interpolate(ref curvedNodes, p0, p1, p2, p3, i);
             }
 
             if (closeLoop)
@@ -69,10 +67,21 @@ namespace Romi.PathTools
                 Vector3 p2 = (nodes[0].leftHandle);
                 Vector3 p3 = (nodes[0].localPos);
 
-                for (int j = 0; j < CURVE_SEGMENT; j++)
+                Interpolate(ref curvedNodes, p0, p1, p2, p3, id);
+            }
+
+            void Interpolate(ref List<Vector3> refNode, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, int i)
+            {
+                int start = !closeLoop ? (i == 0 ? 0 : 1) : 0;
+                int endOffset = closeLoop ? -1 : 0;
+
+                for (int j = start; j <= CURVE_SEGMENT + endOffset; j++)
                 {
                     float t = j / (float)CURVE_SEGMENT;
-                    curvedNodes.Add(CalculateBezierPath(p0, p1, p2, p3, t));
+
+                    var point = CalculateBezierPath(p0, p1, p2, p3, t);
+
+                    refNode.Add(point);
                 }
             }
 
@@ -81,31 +90,36 @@ namespace Romi.PathTools
 
         List<float> GetOrientationAlongCurve()
         {
-            List<float> orienationNodes = new List<float>();
+            List<float> orientationNodes = new List<float>();
 
             for (int i = 0; i < nodes.Count - 1; i++)
             {
-                for (int j = 0; j < CURVE_SEGMENT; j++)
-                {
-                    float t = j / (float)CURVE_SEGMENT;
-
-                    orienationNodes.Add(Mathf.Lerp(nodes[i].orientation, nodes[i + 1].orientation, t));
-                }
+                Interpolate(ref orientationNodes, nodes, i, i + 1);
             }
 
             if (closeLoop)
             {
                 int id = nodes.Count - 1;
 
-                for (int j = 0; j < CURVE_SEGMENT; j++)
+                Interpolate(ref orientationNodes, nodes, id, 0);
+            }
+
+            void Interpolate(ref List<float> refOrientationNodes, List<Node> _nodes, int i, int next)
+            {
+                int start = !closeLoop ? (i == 0 ? 0 : 1) : 0;
+                int endOffset = closeLoop ? -1 : 0;
+
+                for (int j = start; j <= CURVE_SEGMENT + endOffset; j++)
                 {
                     float t = j / (float)CURVE_SEGMENT;
 
-                    orienationNodes.Add(Mathf.Lerp(nodes[id].orientation, nodes[0].orientation, t));
+                    var value = Mathf.Lerp(_nodes[i].orientation, _nodes[next].orientation, t);
+
+                    refOrientationNodes.Add(value);
                 }
             }
 
-            return orienationNodes;
+            return orientationNodes;
         }
 
         Vector3 LocalToWorld(Vector3 localPos)
@@ -135,6 +149,8 @@ namespace Romi.PathTools
 
             //extract the decimals from the resulting index
             precision = distanceToIndex - posIndex;
+
+            //Debug.Log($"index: {posIndex}, precision {precision}");
         }
 
         #endregion
@@ -174,14 +190,15 @@ namespace Romi.PathTools
             bool lastPosInList = posIndex == curvedPositions.Count - 1;
 
             //define the next index
-            int nextId = lastPosInList ? 0 : posIndex + 1;
+            int nextId = lastPosInList ? (!closeLoop ? posIndex : 0) : posIndex + 1;
 
             if (lastPosInList && !closeLoop)
-                precision = 1f;
+                precision = 0f;
 
             //get the precise position on curve at distance
             pos = transform.TransformPoint(Vector3.Lerp(curvedPositions[posIndex], curvedPositions[nextId], precision));
 
+            //Debug.Log($"index: {posIndex}, precision {precision}");
             return pos;
         }
 
@@ -191,9 +208,13 @@ namespace Romi.PathTools
 
             GetPrecisePoint(distance, curvedPositions.Count, out int posIndex, out float precision);
 
-            int nextId = posIndex == curvedPositions.Count - 1 ? 0 : posIndex + 1;
+            //int nextId = posIndex == curvedPositions.Count - 1 ? 0 : posIndex + 1;
+            int nextId = posIndex == 0 ? (closeLoop ? curvedPositions.Count - 1 : 1) : posIndex - 1;
 
-            quat = Quaternion.LookRotation(curvedPositions[nextId] - curvedPositions[posIndex], up);
+            if (!closeLoop && posIndex == 0)
+                quat = Quaternion.LookRotation(curvedPositions[posIndex] - curvedPositions[nextId], up);
+            else
+                quat = Quaternion.LookRotation(curvedPositions[nextId] - curvedPositions[posIndex], up);
 
             return quat;
         }
@@ -206,9 +227,17 @@ namespace Romi.PathTools
         public Vector3 GetUpVectorAtDistance(float distance)
         {
             GetPrecisePoint(distance, curvedPositions.Count, out int posIndex, out float precision);
+            
+            Vector3 direction;
+
+            int nextId = posIndex == 0 ? (closeLoop ? curvedPositions.Count - 1 : 1) : posIndex - 1;
 
             //draw point up with orientation influence
-            Vector3 direction = (curvedPositions[posIndex] - curvedPositions[posIndex == 0 ? (curvedPositions.Count - 1) : (posIndex - 1)]).normalized;
+            if (!closeLoop && posIndex == 0)
+                direction = (curvedPositions[nextId] - curvedPositions[posIndex]).normalized;
+            else
+                direction = (curvedPositions[posIndex] - curvedPositions[nextId]).normalized;
+
             Vector3 finalDirection = Quaternion.AngleAxis(orientations[posIndex], direction) * Vector3.up;
 
             return finalDirection;
@@ -241,10 +270,20 @@ namespace Romi.PathTools
                 for (int i = 0; i < orientations.Count; i++)
                 {
                     //draw point up with orientation influence
-                    Vector3 direction = (curvedPositions[i] - curvedPositions[i == 0 ? (curvedPositions.Count - 1) : (i - 1)]).normalized;
+                    int nextId = i == 0 ? (closeLoop ? curvedPositions.Count - 1 : 1) : i - 1;
+                    Vector3 direction;
+
+                    //draw point up with orientation influence
+                    if (!closeLoop && i == 0)
+                        direction = (curvedPositions[nextId] - curvedPositions[i]).normalized;
+                    else
+                        direction = (curvedPositions[i] - curvedPositions[nextId]).normalized;
+
                     Vector3 finalDirection = Quaternion.AngleAxis(orientations[i], direction) * Vector3.up;
+                    var worldPos = LocalToWorld(curvedPositions[i]);
                     Gizmos.color = Color.red;
-                    Gizmos.DrawLine(LocalToWorld(curvedPositions[i]), LocalToWorld(curvedPositions[i]) + (finalDirection * 0.4f));
+                    Gizmos.DrawLine(worldPos, worldPos + (finalDirection * 0.4f));
+                    //UnityEditor.Handles.Label(worldPos + (finalDirection * 0.5f), i.ToString());
                 }
             }
         }
