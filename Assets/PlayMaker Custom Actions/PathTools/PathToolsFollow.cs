@@ -61,11 +61,12 @@ namespace HutongGames.PlayMaker.Actions
 		{
 			distance += speed.Value * Time.deltaTime;
 
-			if (distance >= currentPath.PathDistance)
+			if (distance >= currentPath.PathDistance * 0.999f)
             {
 				if ((LoopMode)loopType.Value == LoopMode.Stop)
                 {
 					Fsm.Event(OnFinishedEvent);
+					Finish();
                 }
 			}
 
