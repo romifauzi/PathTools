@@ -4,7 +4,7 @@ using Romi.PathTools;
 
 namespace HutongGames.PlayMaker.Actions
 {
-	[ActionCategory("PathTools")]
+	[ActionCategory("Path Tools")]
 	[ActionTarget(typeof(PathScript), "path")]
 	public class PathToolsFollow : FsmStateAction
 	{

@@ -165,6 +165,27 @@ namespace Romi.PathTools
             nodes.Add(new Node(newPos));
         }
 
+        public void AdjustNode(int id, Vector3 newPos, bool moveTangent = false)
+        {
+            if (id >= nodes.Count)
+            {
+                Debug.LogWarning($"Id {id} is out of range");
+                return;
+            }
+
+            var newLocalPos = transform.InverseTransformPoint(newPos);
+           
+            if (moveTangent)
+            {
+                var offset = newLocalPos - nodes[id].localPos;
+                nodes[id].leftHandle += offset;
+                nodes[id].rightHandle += offset;
+            }
+
+            nodes[id].localPos = transform.InverseTransformPoint(newPos);
+            UpdatePath();
+        }
+
         public void UpdatePath()
         {
             curvedPositions = GetCurveNodes();
