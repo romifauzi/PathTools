@@ -58,7 +58,6 @@ namespace Romi.PathTools
                 runtimeDistance %= path.PathDistance;
             }
 
-            Debug.Log(runtimeDistance);
             transform.position = path.GetPositionAtDistance(runtimeDistance);
             Quaternion targetRot = path.GetRotationAtDistance(runtimeDistance, useCustomUpVector ? customUpVector : path.GetUpVectorAtDistance(runtimeDistance));
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);

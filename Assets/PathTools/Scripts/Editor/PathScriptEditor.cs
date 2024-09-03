@@ -14,6 +14,7 @@ namespace Romi.PathTools
         float subPickSize = 0.3f;
 
         SerializedProperty handleSize;
+        SerializedProperty stepSize;
 
         SelectedNode currentSelectedNode;
 
@@ -21,6 +22,7 @@ namespace Romi.PathTools
         {
             source = (PathScript)target;
             handleSize = serializedObject.FindProperty("handleMulti");
+            stepSize = serializedObject.FindProperty("step");
         }
 
         private void OnSceneGUI()
@@ -67,6 +69,7 @@ namespace Romi.PathTools
             source.showUpVector = EditorGUILayout.Toggle("Show Orientation", source.showUpVector);
 
             EditorGUILayout.PropertyField(handleSize, new GUIContent("Handle Size"));
+            EditorGUILayout.PropertyField(stepSize, new GUIContent("Step Size"));
 
             EditorGUILayout.LabelField(string.Format("Path Length: {0}", source.PathDistance));
 
@@ -88,6 +91,11 @@ namespace Romi.PathTools
                 EditorGUILayout.LabelField(string.Format("Current selected Node: {0}", id));
                 source.Nodes[id].orientation = EditorGUILayout.FloatField("Orientation: ", source.Nodes[id].orientation);
                 source.Nodes[id].tangentType = (TangentType)EditorGUILayout.EnumPopup("Tangent Type: ", source.Nodes[id].tangentType);
+                if (GUILayout.Button("Delete Selected Node"))
+                {
+                    source.RemoveNode(id);
+                    selectedId = -1;
+                }
             }
 
             EditorGUILayout.EndVertical();
