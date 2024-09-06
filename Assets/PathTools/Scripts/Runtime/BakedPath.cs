@@ -40,7 +40,7 @@ namespace Romi.PathTools
                     {
                         position[i] = new AnimationCurve();
                         position[i].preWrapMode = WrapMode.Loop;
-                        position[i].postWrapMode = WrapMode.Loop;
+                        position[i].postWrapMode = WrapMode.Loop;     
                     }
 
                     position[i].AddKey(t, pos[i]);
@@ -73,6 +73,24 @@ namespace Romi.PathTools
                 currentDistance += step;
             }
 
+            var lastPos = path.GetPositionAtDistance(0f, true);
+            for (var i = 0; i < position.Length; i++)
+            {
+                position[i].AddKey(1f, lastPos[i]);
+            }
+
+            var lastRot = path.GetRotationAtDistance(0f);
+            for (var i = 0; i < orientation.Length; i++)
+            {
+                orientation[i].AddKey(1f, lastRot[i]);
+            }
+
+            var lastUp = path.GetUpVectorAtDistance(0f);
+            for (var i = 0; i < upVector.Length; i++)
+            {
+                upVector[i].AddKey(1f, lastUp[i]);
+            }
+
             EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -80,9 +98,9 @@ namespace Romi.PathTools
 
         public override Vector3 GetPositionAtDistance(float distance, bool local = false)
         {
-            var t = distance / PathDistance;
+            var t = (distance % PathDistance) / PathDistance;
             var pos = new Vector3(position[0].Evaluate(t), position[1].Evaluate(t), position[2].Evaluate(t));
-            return transform.TransformPoint(pos);
+            return local ? pos : transform.TransformPoint(pos);
         }
 
         public override Quaternion GetRotationAtDistance(float distance)
@@ -108,19 +126,23 @@ namespace Romi.PathTools
         {
             var ready = true;
 
+            ready &= position != null && position.Length > 0;
+            ready &= orientation != null && orientation.Length > 0;
+            ready &= upVector != null && upVector.Length > 0;
+
             foreach (var item in position)
             {
-                ready &= item.length > 0;
+                ready &= item != null && item.length > 0;
             }
 
             foreach (var item in orientation)
             {
-                ready &= item.length > 0;
+                ready &= item != null && item.length > 0;
             }
 
             foreach (var item in upVector)
             {
-                ready &= item.length > 0;
+                ready &= item != null && item.length > 0;
             }
 
             return ready;
@@ -129,7 +151,9 @@ namespace Romi.PathTools
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
-            var step = 0.05f;
+            if (!IsPathReady()) return;
+
+            var step = 1f/position[0].length;
 
             for (float i = step; i < PathDistance; i += step)
             {

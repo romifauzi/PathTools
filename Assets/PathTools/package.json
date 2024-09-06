@@ -2,7 +2,7 @@
   "name": "com.romifauzi.pathtools",
   "version": "1.0.0",
   "displayName": "Romi's Path Tools",
-  "description": "A Lightweight Path/Curve generation tool, for allowing smooth movement along the curve. Paths are baked-able for more performance",
+  "description": "A Lightweight Path/Curve generation tool, allowing for smooth movement along the curve. Paths are baked-able for more performance",
   "unity": "2020.3",
   "keywords": [
     "path",
