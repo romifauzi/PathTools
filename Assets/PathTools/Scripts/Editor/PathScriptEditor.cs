@@ -15,6 +15,7 @@ namespace Romi.PathTools
 
         SerializedProperty handleSize;
         SerializedProperty stepSize;
+        SerializedProperty bakedPathResource;
 
         SelectedNode currentSelectedNode;
 
@@ -23,6 +24,7 @@ namespace Romi.PathTools
             source = (PathScript)target;
             handleSize = serializedObject.FindProperty("handleMulti");
             stepSize = serializedObject.FindProperty("step");
+            bakedPathResource = serializedObject.FindProperty("bakedPathResource");
         }
 
         private void OnSceneGUI()
@@ -73,12 +75,27 @@ namespace Romi.PathTools
 
             EditorGUILayout.LabelField(string.Format("Path Length: {0}", source.PathDistance));
 
+            DrawBakeInspector();
+
             if (EditorGUI.EndChangeCheck())
             {
                 EditorUtility.SetDirty(source);
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        void DrawBakeInspector()
+        {
+            EditorGUILayout.PropertyField(bakedPathResource, new GUIContent("Baked Path"));
+            if (bakedPathResource == null) return;
+            if (bakedPathResource.objectReferenceValue is BakedPath bakeResource)
+            {
+                if (GUILayout.Button("BAKE"))
+                {
+                    bakeResource.Bake((PathScript)target);
+                }
+            }
         }
 
         void DrawNodeInspector(int id)

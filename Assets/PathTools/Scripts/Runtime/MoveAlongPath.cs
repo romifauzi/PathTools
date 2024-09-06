@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Romi.PathTools
 {
     public class MoveAlongPath : MonoBehaviour
     {
-        [SerializeField] PathScript path;
+        [SerializeField] PathBase path;
         [SerializeField] float speed = 2f, rotationSpeed = 5f;
         [SerializeField] LoopMode loopMode;
 
@@ -32,6 +30,11 @@ namespace Romi.PathTools
         // Update is called once per frame
         void Update()
         {
+            if (path == null)
+            {
+                return;
+            }
+
             if (arrived)
                 return;
 
@@ -66,11 +69,10 @@ namespace Romi.PathTools
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            if (!path.IsPathReady())
-                return;
+            if (path == null) return;
 
-            transform.position = path.GetPositionAtDistance(distance);
-            Quaternion targetRot = path.GetRotationAtDistance(distance, path.GetUpVectorAtDistance(distance));
+            transform.position = path.GetPositionAtDistance(distance % path.PathDistance);
+            Quaternion targetRot = path.GetRotationAtDistance(distance % path.PathDistance);
             transform.rotation = targetRot;
 
             pathLength = path.PathDistance;

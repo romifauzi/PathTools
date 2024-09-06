@@ -1,20 +1,21 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Romi.PathTools
 {
-    public class PathScript : MonoBehaviour
+    public class PathScript : PathBase
     {
         #region VARIABLES
         [SerializeField] private List<Node> nodes = new List<Node>();
         [SerializeField] private int selectedId;
+#pragma warning disable 0414
         [SerializeField] private float handleMulti = 0.2f;
+#pragma warning restore 0414
         [SerializeField] private float step = 0.25f;
+        [SerializeField] private BakedPath bakedPathResource;
         public bool closeLoop, showUpVector;
 
-        private int _totalSegment;
+        private float _pathDistance;
 
         public Vector3 lastPos, lastLeftHandlePos, lastRightHandlePos;
 
@@ -25,7 +26,8 @@ namespace Romi.PathTools
         #region PROPERTIES
         public List<Node> Nodes { get => nodes; }
         public int SelectedId { get => selectedId; set => selectedId = value; }
-        public float PathDistance { get; private set; }
+        public override float PathDistance => _pathDistance;
+        public float Step => step;
         #endregion
 
         #region PRIVATE METHODS
@@ -36,8 +38,6 @@ namespace Romi.PathTools
 
         Vector3 CalculateBezierPath(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
         {
-            // (1 - t)^3 * p0 + 3(1-t)^2 * t * p1 + 3(1-t) * t^2 * p2 + t^3 * p3
-
             float oneMinusT = 1f - t;
 
             Vector3 result = Mathf.Pow(oneMinusT, 3f) * p0 + 3f * Mathf.Pow(oneMinusT, 2f) * t * p1
@@ -89,14 +89,14 @@ namespace Romi.PathTools
                 }
             }
 
-            PathDistance = 0f;
+            _pathDistance = 0f;
 
             for (int i = 0; i < curvedNodes.Count; i++)
             {
                 Vector3 a = (closeLoop && i == 0) ? curvedNodes[curvedNodes.Count - 1] : curvedNodes[Mathf.Max(i - 1, 0)];
                 Vector3 b = curvedNodes[i];
                 float distance = (b - a).magnitude;
-                PathDistance += distance;
+                _pathDistance += distance;
             }
 
             return curvedNodes;
@@ -226,7 +226,7 @@ namespace Romi.PathTools
             precision = distanceToIndex - posIndex;
         }
 
-        public Vector3 GetPositionAtDistance(float distance, bool local = false)
+        public override Vector3 GetPositionAtDistance(float distance, bool local = false)
         {
             Vector3 pos = Vector3.zero;
 
@@ -240,13 +240,15 @@ namespace Romi.PathTools
             if (lastPosInList && !closeLoop)
                 precision = 0f;
 
+            pos = Vector3.Lerp(curvedPositions[posIndex], curvedPositions[nextId], precision);
+
             if (local)
                 return pos;
 
             try
             {
                 //get the precise position on curve at distance
-                pos = transform.TransformPoint(Vector3.Lerp(curvedPositions[posIndex], curvedPositions[nextId], precision));
+                pos = transform.TransformPoint(pos);
                 return pos;
             }
             catch
@@ -255,7 +257,7 @@ namespace Romi.PathTools
             }
         }
 
-        public Quaternion GetRotationAtDistance(float distance, Vector3 up)
+        public override Quaternion GetRotationAtDistance(float distance, Vector3 up)
         {
             Quaternion quat;
 
@@ -279,12 +281,12 @@ namespace Romi.PathTools
             }
         }
 
-        public Quaternion GetRotationAtDistance(float distance)
+        public override Quaternion GetRotationAtDistance(float distance)
         {
-            return GetRotationAtDistance(distance, Vector3.up);
+            return GetRotationAtDistance(distance, GetUpVectorAtDistance(distance));
         }
 
-        public Vector3 GetUpVectorAtDistance(float distance)
+        public override Vector3 GetUpVectorAtDistance(float distance)
         {
             GetPrecisePoint(distance, curvedPositions.Count, out int posIndex, out float precision);
             
@@ -310,7 +312,7 @@ namespace Romi.PathTools
             }
         }
 
-        public bool IsPathReady()
+        public override bool IsPathReady()
         {
             return curvedPositions.Count > 0;
         }
@@ -350,7 +352,6 @@ namespace Romi.PathTools
                     var worldPos = LocalToWorld(curvedPositions[i]);
                     Gizmos.color = Color.red;
                     Gizmos.DrawLine(worldPos, worldPos + (finalDirection * 0.4f));
-                    //UnityEditor.Handles.Label(worldPos + (finalDirection * 0.5f), i.ToString());
                 }
             }
         }
