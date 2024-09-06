@@ -21,12 +21,12 @@
         {
             "displayName": "Path Tools Movement Example",
             "description": "Contains sample scene on how to use Path Tools",
-            "path": "Assets/PathToolsExamples/Scenes"
+            "path": "PathToolsExamples/Scenes"
         },
         {
             "displayName": "Path Tools Playmaker Example",
-            "description": "Contains sample scene on how to use Path Tools with Playmaker Visual Scripting",
-            "path": "Assets/PathToolsExamples/PlaymakerScenes"
+            "description": "Contains sample scene on how to use Path Tools with Playmaker Visual Scripting. REQUIRES Playmaker Addon Installed",
+            "path": "PathToolsExamples/PlaymakerScenes"
         }
     ]
 }
