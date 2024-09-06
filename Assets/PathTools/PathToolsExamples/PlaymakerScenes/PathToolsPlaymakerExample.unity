@@ -173,7 +173,7 @@ MonoBehaviour:
   step: 0.25
   bakedPathResource: {fileID: 1750083857}
   closeLoop: 1
-  showUpVector: 1
+  showUpVector: 0
   lastPos: {x: 0.6720195, y: 0.013729572, z: -0.87049556}
   lastLeftHandlePos: {x: 0.20697564, y: 0.013729572, z: -2.8005676}
   lastRightHandlePos: {x: 1.127297, y: 0.013729572, z: 1.0190437}
@@ -7176,7 +7176,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1977854511
 MonoBehaviour:
   m_ObjectHideFlags: 0
