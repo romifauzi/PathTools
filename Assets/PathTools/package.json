@@ -1,0 +1,32 @@
+{
+  "name": "com.romifauzi.pathtools",
+  "version": "1.0.0",
+  "displayName": "Romi's Path Tools",
+  "description": "A Lightweight Path/Curve generation tool, allowing for smooth movement along the curve. Paths are baked-able for more performance",
+  "unity": "2020.3",
+  "keywords": [
+    "path",
+    "curve",
+    "bezier curve",
+	"path movement"
+  ],
+  "author": {
+    "name": "Romi Fauzi"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/romifauzi/PathTools.git"
+  },
+  "samples": [
+        {
+            "displayName": "Path Tools Movement Example",
+            "description": "Contains sample scene on how to use Path Tools",
+            "path": "PathToolsExamples/Scenes"
+        },
+        {
+            "displayName": "Path Tools Playmaker Example",
+            "description": "Contains sample scene on how to use Path Tools with Playmaker Visual Scripting. REQUIRES Playmaker Addon Installed",
+            "path": "PathToolsExamples/PlaymakerScenes"
+        }
+    ]
+}

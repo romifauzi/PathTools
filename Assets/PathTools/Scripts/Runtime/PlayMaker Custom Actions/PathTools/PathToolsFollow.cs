@@ -5,14 +5,14 @@ using Romi.PathTools;
 namespace HutongGames.PlayMaker.Actions
 {
 	[ActionCategory("Path Tools")]
-	[ActionTarget(typeof(PathScript), "path")]
+	[ActionTarget(typeof(PathBase), "path")]
 	public class PathToolsFollow : FsmStateAction
 	{
 		public FsmOwnerDefault objectFollowPath;
 
 		[ActionSection("Path Settings")]
 		[RequiredField]
-		[ObjectType(typeof(PathScript))]
+		[ObjectType(typeof(PathBase))]
 		public FsmObject path;
 
 		public FsmFloat speed;
@@ -40,14 +40,14 @@ namespace HutongGames.PlayMaker.Actions
 		public FsmEvent OnFinishedEvent;
 
 		private float distance;
-		private PathScript currentPath;
+		private PathBase currentPath;
 		private Transform objTransform;
 
 		// Code that runs on entering the state.
 		public override void OnEnter()
 		{
 			distance = 0f;
-			currentPath = (PathScript)path.Value;
+			currentPath = (PathBase)path.Value;
 			objTransform = Fsm.GetOwnerDefaultTarget(objectFollowPath).transform;
 
 			if (!pathDistance.IsNone)

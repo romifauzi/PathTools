@@ -1,0 +1,16 @@
+{
+    "name": "PathTools.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c456118840304d04db015b8e374f1124"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
